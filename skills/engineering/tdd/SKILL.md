@@ -8,6 +8,8 @@ disable-model-invocation: true
 
 TDD is the red → green loop. This skill is the reference that makes that loop produce tests worth keeping: what a good test is, where tests go, the anti-patterns, and the rules of the loop. Every section applies on every cycle: consult them before and during the loop, not after.
 
+Apply the full loop only when the change shape calls for tests - a wiring/declarative change uses its agreed verification instead. For a route-only or seam-only question, identify the first red-test boundary and stop; don't start the red → green loop until the change itself is requested.
+
 When exploring the codebase, read `CONTEXT.md` (if it exists) so test names and interface vocabulary match the project's domain language, and respect ADRs in the area you're touching.
 
 ## What a good test is
@@ -37,3 +39,4 @@ When the shape of that interface is itself in question (how deep the module is, 
 - **Red before green.** Write the failing test first, then only enough code to pass it. Don't anticipate future tests or add speculative features.
 - **One slice at a time.** One seam, one test, one minimal implementation per cycle.
 - **Refactoring is not part of the loop.** It belongs to the review stage (see the `code-review` skill), not the red → green implementation cycle.
+- **After cleanup, classify affected tests as keep, merge, or delete** against real regression coverage. Don't delete a test just to make CI green; rerun affected checks after cleanup.

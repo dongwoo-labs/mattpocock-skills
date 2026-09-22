@@ -67,7 +67,7 @@ If you catch yourself reading code to build a theory before this command exists,
 
 ## Phase 2: Reproduce + minimise
 
-Run the loop. Watch it go red as the bug appears.
+Run the loop. Watch it go red as the bug appears. If the user supplied a minimal executable reproduction, run it first, preserve its inputs and assertions, and use it as the minimisation baseline after it produces the described symptom.
 
 Confirm:
 
@@ -77,13 +77,13 @@ Confirm:
 
 ### Minimise
 
-Once it's red, shrink the repro to the **smallest scenario that still goes red**. Cut inputs, callers, config, data, and steps **one at a time**, re-running the loop after each cut, and keep only what's load-bearing for the failure.
+Once it's red, shrink the repro to the **smallest scenario that still goes red**, unless the supplied reproduction is already minimal. Cut inputs, callers, config, data, and steps **one at a time**, re-running the loop after each cut, and keep only what's load-bearing for the failure.
 
 Why bother: a minimal repro shrinks the hypothesis space in Phase 3 (fewer moving parts left to suspect) and becomes the clean regression test in Phase 5.
 
 Done when **every remaining element is load-bearing**: removing any one of them makes the loop go green.
 
-Do not proceed until you have reproduced **and** minimised.
+Do not proceed until you have reproduced and minimised the reproduction, or confirmed that the supplied reproduction is already minimal.
 
 ## Phase 3: Hypothesise
 
@@ -95,7 +95,7 @@ Each hypothesis must be **falsifiable**: state the prediction it makes.
 
 If you cannot state the prediction, the hypothesis is a vibe: discard or sharpen it.
 
-**Show the ranked list to the user before testing.** They often have domain knowledge that re-ranks instantly ("we just deployed a change to #3"), or know hypotheses they've already ruled out. Cheap checkpoint, big time saver. Don't block on it; proceed with your ranking if the user is AFK.
+**Show the ranked list to the user before testing.** They often have domain knowledge that re-ranks instantly ("we just deployed a change to #3"), or know hypotheses they've already ruled out. This is a read-only diagnostic finding, not an approval gate or a blocker; don't block on it and proceed with your ranking if the user is AFK.
 
 ## Phase 4: Instrument
 

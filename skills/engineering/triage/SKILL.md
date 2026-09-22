@@ -38,7 +38,7 @@ Five **state** roles:
 
 For a PR, the same states read against the attached code: `ready-for-agent` means a brief is attached and an agent should take the next step on the diff; `ready-for-human` means it's ready for a human to merge.
 
-Every triaged issue should carry exactly one category role and one state role. If state roles conflict, flag it and ask the maintainer before doing anything else.
+Every triaged issue should carry exactly one category role and one state role. If state roles conflict, report the conflict, preserve the existing labels and state, and continue available read-only gathering, redundancy checks, verification, and recommendation work. Do not apply a conflicting transition, close the issue, or take another external or irreversible action until the maintainer resolves it.
 
 These are canonical role names. The actual label strings used in the issue tracker may differ - discover the mapping from the repository's own instructions (AGENTS.md, CLAUDE.md, or its issue-tracker docs) before applying labels.
 
@@ -69,7 +69,7 @@ Show counts and a one-line summary per item. Let the maintainer pick.
 
 1. **Gather context.** Read the full issue or PR (body, comments, labels, author, dates; for a PR, the diff too). Parse any prior triage notes so you don't re-ask resolved questions. Explore the codebase using the project's domain glossary, respecting ADRs in the area. Run two checks against the codebase: (a) **redundancy**: search for an existing implementation of the requested behavior by domain concept (not just the request's wording), and report where you looked. If found, it's an already-implemented `wontfix` (step 5). (b) **prior rejection**: read `.out-of-scope/*.md` and surface any that resembles this request.
 
-2. **Recommend.** Tell the maintainer your category and state recommendation with reasoning, plus a brief codebase summary relevant to the request (including whether it's already implemented). Wait for direction.
+2. **Recommend.** Tell the maintainer your category and state recommendation with reasoning, plus a brief codebase summary relevant to the request (including whether it's already implemented). Treat the recommendation as advisory, not an approval gate: continue verification and prepare the applicable notes or brief without waiting for a response. Apply the recommendation only when the invocation or an explicit maintainer decision authorizes the external state change.
 
 3. **Verify the claim.** Before any grilling, check that the claim holds up. For a bug, reproduce it from the reporter's steps. For a PR, confirm the diff does what it claims: check it out, run the relevant tests or commands. Report what happened: confirmed (with code path), failed, or insufficient detail (a strong `needs-info` signal). A confirmed verification makes a much stronger agent brief.
 

@@ -63,6 +63,7 @@ When designing an interface, ask:
 - **The deletion test.** Imagine deleting the module. If complexity vanishes, it was a pass-through. If complexity reappears across N callers, it was earning its keep.
 - **The interface is the test surface.** Callers and tests cross the same seam. If you want to test *past* the interface, the module is probably the wrong shape.
 - **One adapter means a hypothetical seam. Two adapters means a real one.** Don't introduce a seam unless something actually varies across it.
+- **Reuse before a new seam.** Before introducing a new **Module** or **Seam**, check whether an existing **Module** or platform capability satisfies the agreed behaviour and Repository Contract without leaking complexity to callers or reducing portability, testability, security, accessibility, or operability. Reuse it only when that preserves or improves **Depth** and **Locality**; otherwise design the new **Seam**. This check does not reopen user-approved product scope.
 
 ## Designing for testability
 

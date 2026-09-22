@@ -39,21 +39,15 @@ Give each ticket its **blocking edges**: the other tickets that must complete be
 
 **Wide refactors are the exception to vertical slicing.** A **wide refactor** is one mechanical change (rename a column, retype a shared symbol) whose **blast radius** fans across the whole codebase, so a single edit breaks thousands of call sites at once and no vertical slice can land green. Don't force it into a tracer bullet; sequence it as **expand–contract**. First expand: add the new form beside the old so nothing breaks. Then migrate the call sites over in batches sized by blast radius (per package, per directory), each batch its own ticket blocked by the expand, keeping CI green batch to batch because the old form still exists. Finally contract: delete the old form once no caller remains, in a ticket blocked by every migrate batch. When even the batches can't stay green alone, keep the sequence but let them share an integration branch that all block a final integrate-and-verify ticket; green is promised only there.
 
-### 4. Quiz the user
+### 4. Recommend the breakdown
 
-Present the proposed breakdown as a numbered list. For each ticket, show:
+Present the proposed breakdown as a numbered recommendation. For each ticket, show:
 
 - **Title**: short descriptive name
 - **Blocked by**: which other tickets (if any) must complete first
 - **What it delivers**: the end-to-end behaviour this ticket makes work
 
-Ask the user:
-
-- Does the granularity feel right? (too coarse / too fine)
-- Are the blocking edges correct: does each ticket only depend on tickets that genuinely gate it?
-- Should any tickets be merged or split further?
-
-Iterate until the user approves the breakdown.
+Reuse the accepted spec decisions, testing decisions, and implementation boundaries. Decide routine, reversible granularity and blocking edges from that settled record; do not create a wait for a recommendation, hypothesis, or ordinary merge/split choice. Ask only when a proposed breakdown would materially change scope, architecture, authority, or an explicit approval boundary.
 
 ### 5. Publish the tickets to the configured tracker
 
