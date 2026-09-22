@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 This skill takes the current conversation context and codebase understanding and produces a spec. Do NOT interview the user; just synthesize what you already know.
 
-The issue tracker and triage label vocabulary should be discoverable from the repository's own instructions (AGENTS.md, CLAUDE.md, or its issue-tracker docs).
+The issue tracker and triage label vocabulary should be discoverable from the repository's own instructions (AGENTS.md, CLAUDE.md, or its issue-tracker docs). Writing the spec itself doesn't need this - only ask the user if they aren't discoverable *and* you're about to actually publish to an external tracker whose destination is unclear.
 
 ## Process
 
@@ -16,7 +16,7 @@ The issue tracker and triage label vocabulary should be discoverable from the re
 
 Check with the user that these seams match their expectations.
 
-3. Write the spec using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage.
+3. Write the spec using the template below, then publish it to the project issue tracker. Apply a triage label such as `ready-for-agent` only if the repository's own conventions define one - no need for additional triage either way.
 
 <spec-template>
 
