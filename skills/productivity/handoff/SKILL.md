@@ -14,3 +14,7 @@ Do not duplicate content already captured in other artifacts (specs, plans, ADRs
 Redact any sensitive information, such as API keys, passwords, or personally identifiable information.
 
 If the user passed arguments, treat them as a description of what the next session will focus on and tailor the doc accordingly.
+
+If the conversation is tied to a tracker issue (e.g. a Linear issue), add one short comment on that issue: the handoff file's path and a one-line summary, following the same redaction rule as the file. The comment is a pointer - the file remains the source of truth. After posting, append the comment's id and URL to the handoff document.
+
+End the handoff document with a "Before deleting this file" checklist for whoever picks it up: re-verify every referenced artifact (branch, commits, PR, issue status) against current state and note what drifted; check the issue's assignee, latest comments, open PRs on the branch, and `git worktree list` for another active session, and pause to ask the user if one appears; fold any handoff-only decision into the issue; then delete this file and the tracker comment above.
