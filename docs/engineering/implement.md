@@ -6,7 +6,7 @@ It never reopens the plan. There is no interview, no clarifying round, no propos
 
 ## When to reach for it
 
-You invoke this by typing `/implement` yourself: the agent won't reach for it on its own. It ships with `disable-model-invocation: true`, so no other skill can call it either. Wherever [ask-matt](https://aihero.dev/skills-ask-matt) or [to-tickets](https://aihero.dev/skills-to-tickets) says "then `/implement` per ticket", that is an instruction to you, not something the agent will do unprompted.
+You invoke this by typing `/implement` yourself: the agent won't reach for it on its own. It ships with `disable-model-invocation: true`, so no other skill can call it either. [to-tickets](https://aihero.dev/skills-to-tickets)의 "then `/implement` per ticket" 안내는 사용자가 실행하라는 뜻이지 agent의 자동 호출 지시가 아니다.
 
 Where the work currently lives decides whether this is the right skill:
 
@@ -94,4 +94,4 @@ Its neighbours are [to-tickets](https://aihero.dev/skills-to-tickets), which pro
 
 That trust is why [wayfinder](https://aihero.dev/skills-wayfinder) merges onto the chain at [to-spec](https://aihero.dev/skills-to-spec) rather than looping its map straight into `implement`. Go straight to `implement` from a map only when the effort turned out genuinely small.
 
-[ask-matt](https://aihero.dev/skills-ask-matt) is the router over the whole set when you are not sure which flow you are in.
+skill 선택과 흐름 routing은 consuming harness의 안내를 따른다.

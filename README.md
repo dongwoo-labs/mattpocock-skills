@@ -189,9 +189,10 @@ These split on one axis: who can invoke them. **User-invoked** skills are reacha
 
 Skills I use daily for code work.
 
+skill 선택과 흐름 routing은 consuming harness가 소유한다. 이 plugin은 `ask-matt`를 제공하지 않는다.
+
 **User-invoked**
 
-- **[ask-matt](./skills/engineering/ask-matt/SKILL.md)**: Ask which skill or flow fits your situation. A router over the user-invoked skills in this repo.
 - **[grill-with-docs](./skills/engineering/grill-with-docs/SKILL.md)**: Grilling session that also builds your project's domain model, sharpening terminology and updating `CONTEXT.md` and ADRs inline.
 - **[triage](./skills/engineering/triage/SKILL.md)**: 접수된 요청을 검증·분류하고 brief를 준비한다. 실행 배정·merge 권한은 기존 lifecycle 담당자에게 남긴다.
 - **[improve-codebase-architecture](./skills/engineering/improve-codebase-architecture/SKILL.md)**: Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick.
