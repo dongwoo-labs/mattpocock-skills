@@ -30,7 +30,7 @@ This is a proposal, not implementation or lifecycle authority. Record evidence, 
 
 ### Implementation vs Review
 
-Remember that all work goes through two stages: implementation and review. The implementation agent has the most **context pressure**. They are responsible for exploration, writing code, and debugging failures.
+When a task calls for review, work has two stages: implementation and review. The implementation agent has the most **context pressure**. They are responsible for exploration, writing code, and debugging failures.
 
 The review agent has the least context pressure - it receives a diff, so no exploration needed. It often does not need to write code or debug.
 

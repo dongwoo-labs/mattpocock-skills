@@ -63,7 +63,7 @@ A fair and repeated criticism. Two things help. Pass the argument (tell it what 
 Both work; they suit different situations. As a skill it ships and updates through the same install path as everything else here, which is what makes it shareable; the constraint that the agent won't fire it itself is set by its frontmatter rather than by the mechanism.
 
 **요약을 받은 agent가 작업 시작과 정리까지 맡는가?**
-아니다. worker 시작·worktree 배정·점유 확인·publication·merge·deploy·cleanup은 저장소의 기존 lifecycle 담당자와 절차를 따른다. 등록 프로젝트에서는 agent-home 책임을 유지한다. 재개 전에 현재 owner와 상태를 확인하고 수신자의 인수 확인을 남긴다. `git worktree list`는 등록 정보이지 live writer 증거가 아니다. 파일과 pointer도 담당자의 cleanup 승인 전까지 보존한다.
+아니다. worker 시작·worktree 배정·점유 확인·publication·merge·deploy·cleanup은 consuming harness의 기존 lifecycle 담당자와 절차를 따른다. 재개 전에 현재 owner와 상태를 확인하고 수신자의 인수 확인을 남긴다. `git worktree list`는 등록 정보이지 live writer 증거가 아니다. 파일과 pointer도 담당자의 cleanup 승인 전까지 보존한다.
 
 ## It's working if
 
