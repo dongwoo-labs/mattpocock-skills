@@ -1,12 +1,14 @@
 ---
 name: triage
-description: Move issues and external PRs through a state machine of triage roles, categorise, verify, grill if needed, and write agent-ready briefs.
+description: Prepare incoming issues and external PRs through triage roles, verification, and agent-ready briefs; implementation dispatch stays with the repository lifecycle owner.
 disable-model-invocation: true
 ---
 
 # Triage
 
-Move issues on the project issue tracker through a small state machine of triage roles.
+Prepare incoming issues on the project issue tracker through a small state machine of triage roles.
+
+Triage owns intake, representative verification, recommendations, and briefs, not implementation dispatch or lifecycle authority. `ready-for-agent` means prepared for assignment, not that a worker started; `ready-for-human` on a PR is a readiness recommendation, not merge approval. Worker starts, worktree allocation, writer occupancy, publication, merge, deploy, and cleanup remain with the repository's existing lifecycle owner. Verify only in an authorized environment, preserve existing work, and report missing access rather than changing a canonical checkout or starting a competing writer. Preserve the original request, decisions, pending questions, and evidence on the tracker/PR; a sent brief is not recipient acceptance.
 
 If this repo treats external pull requests as a request surface (see the issue-tracker config), triage covers them too: **a PR is an issue with attached code**, using the same roles, same states, and same machine, with a few deltas marked "for a PR" below. Resolve a bare `#42` to an issue or PR per the tracker config.
 
@@ -71,7 +73,7 @@ Show counts and a one-line summary per item. Let the maintainer pick.
 
 2. **Recommend.** Tell the maintainer your category and state recommendation with reasoning, plus a brief codebase summary relevant to the request (including whether it's already implemented). Treat the recommendation as advisory, not an approval gate: continue verification and prepare the applicable notes or brief without waiting for a response. Apply the recommendation only when the invocation or an explicit maintainer decision authorizes the external state change.
 
-3. **Verify the claim.** Before any grilling, check that the claim holds up. For a bug, reproduce it from the reporter's steps. For a PR, confirm the diff does what it claims: check it out, run the relevant tests or commands. Report what happened: confirmed (with code path), failed, or insufficient detail (a strong `needs-info` signal).
+3. **Verify the claim.** Before any grilling, check that the claim holds up. For a bug, reproduce it from the reporter's steps. For a PR, confirm the diff does what it claims in the repository's authorized verification allocation, running the relevant tests or commands without replacing an existing checkout or writer. This is intake verification, not deep diagnosis or a fix; hand any deeper work back through the existing task owner. Report what happened: confirmed (with code path), failed, or insufficient detail (a strong `needs-info` signal).
 
 4. **Grill (if needed).** If the request needs fleshing out, call the Skill tool twice, for "grilling" and "domain-modeling", and grill it into shape a round of questions at a time, sharpening domain terms and updating `CONTEXT.md`/ADRs inline as decisions land.
 

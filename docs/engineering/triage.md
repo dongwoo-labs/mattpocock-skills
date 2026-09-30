@@ -4,7 +4,7 @@
 
 It is only for issues **you didn't create**. Raw bug reports, incoming feature requests, an external pull request that arrived unannounced: work that landed in the tracker from outside, in whatever shape the reporter left it. [Tickets](https://www.aihero.dev/ai-coding-dictionary/ticket) that [to-tickets](https://aihero.dev/skills-to-tickets) produced are already agent-ready by construction, and running `triage` over them is wasted work at best. The rule is flat: `/triage` is only for incoming issues, not for issues you created yourself.
 
-The second thing that separates it from labelling by hand: it recommends and waits. It tells you its category and state call with reasoning, plus what it found in the codebase, and applies nothing until you direct it.
+접수·대표 검증·추천·brief 작성이 책임 범위다. 추천 이후에도 읽기와 준비는 계속할 수 있지만 외부 상태 변경은 호출 또는 명시 결정이 승인한 범위만 적용한다. `ready-for-agent`는 배정 준비, `ready-for-human`은 사람 검토 준비를 뜻하며 worker 기동이나 merge 승인이 아니다. worker 시작·worktree 할당·writer 점유·publication·merge·deploy·cleanup은 저장소의 기존 lifecycle 담당자가 맡는다. brief 전달과 수신 인수도 구분한다.
 
 ## When to reach for it
 
@@ -50,11 +50,11 @@ That is the whole vocabulary, and the "exactly one state role" invariant is what
 
 ## Verify before you brief
 
-Before any [grilling](https://www.aihero.dev/ai-coding-dictionary/grilling), `triage` checks that the claim actually holds. For a bug, it reproduces it from the reporter's steps. For a PR, it checks the branch out and runs the relevant tests. Then it reports which of three things happened: confirmed, with the code path; failed to reproduce; or not enough detail to try, which is itself the strongest `needs-info` signal there is.
+Before any [grilling](https://www.aihero.dev/ai-coding-dictionary/grilling), `triage` checks that the claim actually holds. For a bug, it reproduces it from the reporter's steps. PR 검증은 기존 writer나 checkout을 바꾸지 않는 승인된 verification allocation에서 관련 검사를 실행한다. 환경이 없으면 gap으로 보고하며 심층 진단·수정은 기존 task owner에게 돌려보낸다. Then it reports which of three things happened: confirmed, with the code path; failed to reproduce; or not enough detail to try, which is itself the strongest `needs-info` signal there is.
 
 It runs two more checks against the codebase in the same pass: **redundancy** (is this already implemented, searched by domain concept rather than by the reporter's wording?) and **prior rejection** (does `.out-of-scope/` already say no?). Both are cheap, and both produce a `wontfix` when they hit.
 
-All of it exists to make one artifact good: the **agent brief**, the structured comment posted when an issue moves to `ready-for-agent`. Once it's posted, the brief is the contract and the original report is only context. Briefs are written to be **durable** rather than precise, because an issue can sit in `ready-for-agent` for weeks while the code moves underneath it. So they name types, signatures and behavioural contracts, and never file paths or line numbers. A confirmed reproduction makes a far stronger brief than a guess does.
+All of it exists to make one artifact good: the **agent brief**, the structured comment posted when an issue moves to `ready-for-agent`. brief는 합의된 행동 계약의 요약이며 원래 요청·수락한 결정·pending·증거 링크를 보존한다. 원문을 대체하거나 범위를 줄이지 않고 실행 담당자의 allocation·승인 계약도 대신하지 않는다. Briefs are written to be **durable** rather than precise, because an issue can sit in `ready-for-agent` for weeks while the code moves underneath it. So they name types, signatures and behavioural contracts, and never file paths or line numbers. A confirmed reproduction makes a far stronger brief than a guess does.
 
 ## A PR is an issue with attached code
 
@@ -88,7 +88,7 @@ Yes, the tracker is config, not a hard-coded assumption, and people run it again
 ## It's working if
 
 - Every item it touches ends with exactly one category role and one state role, never zero, never two states in conflict.
-- It gives you a recommendation with reasoning and stops, rather than relabelling and moving on.
+- 추천 근거와 준비된 brief를 확인할 수 있고, 승인하지 않은 외부 상태 변경이나 worker 기동은 발생하지 않는다.
 - The bug got reproduced, or the PR got checked out and run, before anything reached `ready-for-agent`.
 - The briefs it writes name types and behaviours, and contain no file paths and no line numbers.
 - A request that was rejected six months ago comes back, and it says so and quotes the old reason instead of triaging it fresh.

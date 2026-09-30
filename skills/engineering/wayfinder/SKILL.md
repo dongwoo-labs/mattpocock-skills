@@ -10,7 +10,9 @@ The destination varies per effort, and naming it is the first act of charting: i
 
 ## Plan, don't do
 
-Wayfinder is **planning** by default: each ticket resolves a decision, and the map is done when the way is clear, with nothing left to decide before someone goes and does the thing. The pull to just do the work is usually the signal you've reached the edge of the map and it's time to hand off. An effort can override this in its **Notes**, carrying execution into the map itself, but absent that, produce decisions, not deliverables.
+Wayfinder is **planning** by default: each ticket resolves a decision, and the map is done when the way is clear, with nothing left to decide before someone goes and does the thing. The pull to just do the work is usually the signal you've reached the edge of the map and it's time to hand off. Execution may appear in **Notes** only when the user explicitly authorizes that scope; agent-authored Notes are not permission. Produce decisions, not deliverables, unless that authority is established.
+
+The map does not own worker starts, worktree allocation, writer occupancy, publication, merge, deploy, or cleanup. Follow the repository's existing lifecycle owner and execution path for any authorized prototype, research artifact, or task. A ticket assignment coordinates decision work; it proves neither a live writer nor execution authority. Preserve decisions and pending questions on the tracker, and distinguish sending a handoff from the recipient accepting it.
 
 ## Refer by name
 
@@ -112,7 +114,7 @@ User invokes with a loose idea.
 2. **Map the frontier.** Grill again, **breadth-first** this time: fan out across the whole space rather than deep on any one thread, surfacing the open decisions and the first steps takeable now. **If this surfaces no fog** (the way to the destination is already clear, the whole journey small enough for one session), you don't need a map. Stop and ask the user how they'd like to proceed.
 3. **Create the map** (label `wayfinder:map`): Destination and Notes filled in, Decisions-so-far empty, the fog sketched into **Not yet specified**.
 4. **Create the tickets you can specify now** as child issues of the map, then wire blocking edges in a **second pass** (issues need ids before they can reference each other). Wiring sorts them into the frontier and the blocked; everything you can't yet specify stays in the fog: the **Not yet specified** section.
-5. **Fire the research subagents.** For each `research` ticket you just created, spin up a subagent that calls the Skill tool with "research" to resolve it in parallel, capturing its findings on a throwaway `research/<name>` branch with a context pointer from the ticket.
+5. **Fire the research subagents.** For each `research` ticket you just created, spin up a subagent that calls the Skill tool with "research" to resolve it in parallel, capturing its findings with a context pointer from the ticket. Use the repository's authorized worker/allocation path; do not create a competing branch or writer through this map. Preserve artifacts until the lifecycle owner authorizes cleanup.
 6. Stop: charting is one session's work; it hand-resolves nothing.
 
 ### Work through the map

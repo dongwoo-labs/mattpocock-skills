@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: Compact the current conversation into a handoff document for another agent to pick up.
+description: Write a portable handoff summary while preserving decisions and pending work in the tracker or PR.
 argument-hint: "What will the next session be used for?"
 disable-model-invocation: true
 ---
@@ -15,6 +15,10 @@ Redact any sensitive information, such as API keys, passwords, or personally ide
 
 If the user passed arguments, treat them as a description of what the next session will focus on and tailor the doc accordingly.
 
-If the conversation is tied to a tracker record - a Linear issue, or a Linear project when no single issue fits - add one short comment there: the handoff file's path and a one-line summary, following the same redaction rule as the file. The comment is a pointer - the file remains the source of truth. After posting, append the comment's id, URL, and record type to the handoff document.
+The temporary file is a convenience summary. Preserve important decisions, pending requests, and resumption context in the existing tracker record or PR before handing it over, following the same redaction rule as the file; reference that durable record from the summary. If no suitable record exists or it cannot be updated, report the preservation gap rather than claiming a durable handoff.
 
-End the handoff document with a "Before deleting this file" checklist for whoever picks it up: re-verify every referenced artifact (branch, commits, PR, tracker record status) against current state and note what drifted; check the tracker record's owner, latest comments, open PRs on the branch, and `git worktree list` for another active session, and pause to ask the user if one appears; fold any handoff-only decision into the tracker record; then delete this file and the tracker comment above.
+If the conversation is tied to a tracker record - a Linear issue, or a Linear project when no single issue fits - add one short pointer comment there: the handoff file's path and a one-line summary. After posting, append the comment's id, URL, and record type to the handoff document. The tracker or PR remains authoritative if the file disappears or conflicts with current state.
+
+This skill prepares context, not task execution authority. Worker starts, worktree allocation, occupancy, publication, merge, deploy, and cleanup follow the repository's existing lifecycle owner and procedure (agent-home for registered projects). A summary or successful send is not recipient acceptance or approval of those actions.
+
+End the handoff document with a "Before resuming or deleting this file" checklist: re-verify referenced branches, commits, PRs, and tracker status; read the owner and latest comments; check current task ownership and live sessions through the existing lifecycle procedure (`git worktree list` proves registration, not a live writer); report conflicts to the responsible owner before resuming; confirm the recipient accepted the scope and that important decisions, pending requests, and resumption context are preserved in the tracker or PR. Retain the file and pointer until the responsible owner authorizes cleanup through that procedure; this checklist grants no deletion authority.

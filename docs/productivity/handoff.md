@@ -1,6 +1,6 @@
 ## What it does
 
-`handoff` compacts the conversation you are in into a **handoff document**: one markdown file, written to your OS's temporary directory rather than into the workspace, that a fresh [agent](https://www.aihero.dev/ai-coding-dictionary/agent) can read to pick the work up.
+`handoff`는 새 [agent](https://www.aihero.dev/ai-coding-dictionary/agent)가 맥락을 읽을 수 있도록 OS 임시 디렉터리에 이동용 요약을 만든다. 임시 파일은 편의 요약이고, 중요 결정·pending 요청·재개 맥락의 정본은 기존 tracker 또는 PR이다. 요약 전달은 수신자의 인수 확인이나 작업 실행 승인이 아니다.
 
 What it buys is **portability**, not compression. That makes the skill narrower than it sounds. You need a file only when the work has to *travel*: to a new [harness](https://www.aihero.dev/ai-coding-dictionary/harness), a new directory, a colleague, or a side task you want to fork off. If nothing is travelling, you do not need a handoff: staying in the [session](https://www.aihero.dev/ai-coding-dictionary/session), `/clear`, a [subagent](https://www.aihero.dev/ai-coding-dictionary/subagent) and `/compact` cover the ordinary end-of-phase case, and `/compact` covers it more often than this skill does.
 
@@ -45,7 +45,7 @@ Three different things being preserved. `/compact` compresses this context and k
 The temp directory, which is the most-reported friction with the skill: the paths are long, they differ per OS, and on Windows agents sometimes take several attempts to find the right one. Ask for the path back and keep it before you move on. Temp is deliberate: a handoff is a transit document, not an artifact you maintain. It is not a durable one either; see the next question.
 
 **My handoff vanished between sessions.**
-Some environments clear temp between sessions (Codex is the reported case), and `/private/tmp` goes on reboot. If the next session isn't starting within the hour, or is starting under a different harness, copy the file somewhere durable yourself as soon as it's written. The same applies to anything the document *points at*: a dispatch that references other files in temp is a dispatch the next agent can't follow.
+일부 환경은 세션 사이에 임시 디렉터리를 비우며, `/private/tmp`도 재부팅 때 사라질 수 있다. 인계 전에 중요 결정·pending·재개 지점을 tracker/PR에 보존하고 요약에서 그 위치를 가리킨다. 임시 파일 경로만 있는 pointer comment로는 보존이 끝나지 않는다. 정본을 갱신할 수 없으면 보존 공백을 보고하고, 임시 파일만으로 안전하게 재개할 수 있다고 주장하지 않는다.
 
 **How do I actually hand it to the next agent?**
 Open the fresh session and point it at the path: read this file, then continue. Point at the file rather than pasting the summary into a shell command: a summary containing backticks or `$(...)` gets mangled when it's interpolated into `claude "<summary>"`, and the usual failure is silent truncation rather than an error, so the new agent starts with a quietly incomplete brief.
@@ -62,11 +62,15 @@ A fair and repeated criticism. Two things help. Pass the argument (tell it what 
 **Why is it a skill rather than a slash command?**
 Both work; they suit different situations. As a skill it ships and updates through the same install path as everything else here, which is what makes it shareable; the constraint that the agent won't fire it itself is set by its frontmatter rather than by the mechanism.
 
+**요약을 받은 agent가 작업 시작과 정리까지 맡는가?**
+아니다. worker 시작·worktree 배정·점유 확인·publication·merge·deploy·cleanup은 저장소의 기존 lifecycle 담당자와 절차를 따른다. 등록 프로젝트에서는 agent-home 책임을 유지한다. 재개 전에 현재 owner와 상태를 확인하고 수신자의 인수 확인을 남긴다. `git worktree list`는 등록 정보이지 live writer 증거가 아니다. 파일과 pointer도 담당자의 cleanup 승인 전까지 보존한다.
+
 ## It's working if
 
 - The document is a small fraction of the conversation, and the specs, issues and diffs appear in it as paths and URLs rather than as copied text.
 - You can read it cold, without the original session open, and know what to do next.
-- The fresh agent starts working instead of asking you to re-explain the setup.
+- 임시 파일이 없어져도 tracker/PR에서 결정·pending·재개 지점을 찾을 수 있다.
+- 수신자가 현재 owner와 상태를 확인하고 인수 범위를 수락한다. 작업 시작·정리는 기존 lifecycle 절차로 진행한다.
 - In the fork case, your original session is still sitting there untouched when you come back to it.
 - The suggested-skills section names the skill you'd have reached for yourself.
 - Nothing in it is a key, a token, or a password.
