@@ -1,93 +1,60 @@
 ## What it does
 
-`diagnosing-bugs` runs a six-phase diagnosis on a hard bug or a performance regression: build a repro, minimise it, rank hypotheses, instrument, fix with a regression test, clean up.
+`diagnosing-bugs`는 기존 이름을 유지하는 T1 임시 호환 진입점이다. 직접 호출하면 `diagnose-bug` Skill의 심층 모드를 명시적으로 선택한다. 진단 단계는 target에만 있으며 이 진입점은 여섯 단계를 별도로 구현하지 않는다.
 
-It will not let the agent form a theory until a **tight** feedback loop exists: one named command, already run once, that goes red on *this* bug and green when it is fixed. The default behaviour of a coding agent handed a bug report is to read code and guess; this skill blocks that. If no red-capable command exists, there is no Phase 2. That single gate is what the skill is for. Everything after it (bisection, hypothesis-testing, instrumentation) is mechanical once the signal exists.
+심층 선택은 권한을 늘리지 않는다. 기존 writer가 허용된 재현·진단·수정·회귀 검증을 소유하고, 원인만 요청한 경우에는 진단에서 끝난다.
 
 ## When to reach for it
 
-Type `/diagnosing-bugs`, or the agent reaches for it on its own when a task fits: it is model-invoked, and fires on "diagnose" / "debug this" or on a report that something is broken, throwing, failing, or slow.
+사용자가 `/diagnosing-bugs`를 직접 입력할 때만 호출한다. agent가 일반적인 버그 보고나 짧은 질문을 보고 자동으로 선택하지 않는다.
 
-Reach for it on the hard ones: a bug that resists a first look, an intermittent flake, a regression that crept in between two known-good states. It is heavy by design, and the wrong tool for a question you want answered in one message.
-
-| Your situation | Where to go |
+| 상황 | 선택 |
 | --- | --- |
-| A specific defect you can describe as a symptom | This skill |
-| A slow endpoint or a timing regression with a known before-and-after | This skill: it has a performance branch (measure a baseline, then bisect) |
-| "Where are the bottlenecks in this codebase?", no specific symptom | Not this skill. It diagnoses one known failure, it does not audit |
-| A raw bug report from someone else, not yet confirmed or written up | [triage](https://aihero.dev/skills-triage) first |
-| Throwaway code to answer a design question, not chase a defect | [prototype](https://aihero.dev/skills-prototype) |
-| Building a planned behaviour test-first | [tdd](https://aihero.dev/skills-tdd) |
-| No good seam exists to lock the bug down | [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture): this skill hands off there itself |
+| 기존 이름으로 어려운 버그나 성능 회귀의 심층 흐름을 요청 | 이 호환 진입점 |
+| 원인만 찾고 수정하지 않기를 요청 | 이 진입점에서 원인만 진단하는 심층 요청을 전달 |
+| 코드·로그에 대한 가설과 불확실성만 필요 | consuming harness의 일반 진단 경로 |
+| 아직 확인되지 않은 외부 버그 보고를 분류 | [triage](https://aihero.dev/skills-triage) |
+| 실패 증상이 없는 설계 질문에 임시 코드로 답하기 | [prototype](https://aihero.dev/skills-prototype) |
 
-## The tight loop is the skill
+## Prerequisites
 
-Phase 1 gets disproportionate effort because it is the only phase that is hard. The skill gives a ladder of ways to construct the loop, roughly in order of preference:
+사용 중인 [harness](https://www.aihero.dev/ai-coding-dictionary/harness)가 model-invoked `diagnose-bug` Skill과 명시 모드 계약을 제공해야 한다. 이 plugin에 호환 진입점이 남아 있다는 사실은 target의 설치·활성화·호출 성공을 증명하지 않는다. target이 없거나 접근할 수 없거나 계약이 맞지 않으면 dependency를 보고하고 해당 흐름을 멈춘다. 자동 설치나 로컬 단계 복제로 대신하지 않는다.
 
-1. A failing test at whatever seam reaches the bug.
-2. A curl or HTTP script against a running dev server.
-3. A CLI invocation with a fixture input, diffed against a known-good snapshot.
-4. A headless browser script asserting on DOM, console, or network.
-5. A replayed capture: a saved request, payload, or event log, run through the code path in isolation.
-6. A throwaway harness: a minimal subset of the system, one function call.
-7. A property or fuzz loop, for "sometimes wrong output".
-8. A bisection harness you can hand to `git bisect run`.
-9. A differential loop: same input, old version against new.
-10. A [human-in-the-loop](https://www.aihero.dev/ai-coding-dictionary/human-in-the-loop) bash script, last resort. The skill ships `scripts/hitl-loop.template.sh` for this: the agent runs the script, you follow prompts in your terminal, and your answers come back as parseable output.
+## 명시 심층 선택
 
-*A* loop is not the goal. **Tight** is: fast (seconds), deterministic (same verdict every run), sharp (asserts your exact symptom, not "didn't crash"), and agent-runnable unattended. A 30-second flaky loop is barely better than none. For a bug that only shows up sometimes, the target is not a clean repro but a **higher reproduction rate**: loop the trigger, parallelise, add stress, inject sleeps, until the flake rate is high enough to debug against.
+호환 진입점은 Skill tool로 `diagnose-bug`를 호출하며 원래 요청·증거·revision·환경·재현 명령·pending·권한을 전달한다. 아래 문장은 자연어 task 지시이며 CLI flag나 alias 문법이 아니다.
 
-When it genuinely cannot build one, it is instructed to stop and say so, list what it tried, and ask you for [environment](https://www.aihero.dev/ai-coding-dictionary/environment) access, a captured artifact, or permission to add temporary instrumentation. It should not proceed to hypothesise anyway.
-
-## The gates between phases
-
-The phases are gates, not a checklist. Each one refuses to open until something specific is true.
-
-| Gate | What has to be true |
+| 요청 범위 | 전달할 지시 |
 | --- | --- |
-| Into Phase 2 | A named command, already run and pasted with its output, that can go red on this bug |
-| Into Phase 3 | The repro is reproduced *and* minimised: every remaining element is load-bearing |
-| Into Phase 4 | 3–5 ranked, falsifiable hypotheses exist, each stating its prediction, shown to you before any is tested |
-| Into Phase 5 | Probes map to a specific prediction, one variable at a time, every debug log tagged `[DEBUG-a4f2]`-style so cleanup is one grep |
-| Done | Original repro no longer reproduces, instrumentation gone, and the hypothesis that turned out correct is written into the commit message |
+| 기존 권한 안에서 수정까지 요청 | `심층 모드로 진행해줘. 기존 writer가 <환경>에서 <증상>을 재현하고, 진단·수정·회귀 검증까지 수행해줘.` |
+| 원인만 요청하거나 수정 권한이 없음 | `심층 모드로 원인만 진단해줘. <증상>의 원인을 찾되 수정하지 마.` |
 
-Phase 5 has an escape hatch worth knowing about. The regression test is written before the fix, but only if a **correct seam** exists for it: one where the test exercises the real bug pattern as it occurs at the call site. Where the only available seam is too shallow, the skill is told to say so rather than write a test that gives false confidence. That absence is itself the finding, and it is what routes the post-mortem to `improve-codebase-architecture`.
+target의 기본 일반 모드에 기대지 않고 심층을 명시한다. **tight** feedback loop가 필요한 실행 흐름은 target가 소유한다. 재현 환경이나 실행 권한이 부족하면 가능한 read-only 분석과 막힌 실행을 구분하며 심층 완료로 표시하지 않는다.
 
 ## Common questions
 
-**It fires on quick questions where I just wanted a direct answer.**
-This is the most-reported problem with the skill, and it is real. On GPT-5.6-Sol especially, users report it triggering on a plain description of a problem: "the model triggers the rather formal diagnosing-bugs skill instead. It then goes on to construct a reproduction scenario (often building a mock scenario with limited value) before giving me a response or suggestion. This results in considerable reply delays." Four separate people reported the same shape on [issue #578](https://github.com/mattpocock/skills/issues/578). The accepted fix is to start with a lighter approach and graduate to the heavier one only where the problem warrants it, but that change has not landed. The skill is calibrated against Claude Code's invocation behaviour; a [model](https://www.aihero.dev/ai-coding-dictionary/model) with a lower activation threshold over-fires it. Until it is graduated, the practical fix is to say what you want ("just answer this, don't diagnose") or to disable model invocation for it in your [harness](https://www.aihero.dev/ai-coding-dictionary/harness).
+**짧은 질문에도 무거운 진단이 시작되나요?**
+기존 자동 호출의 과도한 활성화는 [issue #578](https://github.com/mattpocock/skills/issues/578)에서 보고된 문제다. 이 T1 entry는 user-invoked로 바뀌어 일반 버그 문장만으로 자동 선택되지 않는다. 일반 진단의 선택과 routing은 consuming harness가 맡는다.
 
-**Can I point it at a codebase and ask where the performance problems are?**
-No. It diagnoses one failure you can already name. Its performance branch is for a regression with a symptom (establish a baseline measurement, then bisect, measure first and fix second), not for a proactive sweep. A skill for the proactive version was [proposed and closed](https://github.com/mattpocock/skills/issues/431); there is currently no skill for it.
+**심층을 선택하면 자동으로 수정 권한이 생기나요?**
+아니다. 원인만 요청하면 fix/regression은 NOT_RUN이다. 수정까지 요청했더라도 기존 writer의 권한 안에서만 진행한다. 별도 진단 helper는 diagnose-only/no-edit, readonly, noBrowser, task-local이며 추가 위임을 하지 않는다. 이는 prompt-only 계약이지 실제 tool permission isolation을 보장하는 장치는 아니다.
 
-**Does it stop and ask me before it writes the fix?**
-No. Only Phase 3 has a human checkpoint: the ranked hypothesis list is shown to you before any is tested, and it proceeds on its own ranking if you are away. There is no gate between instrumentation and the fix, so the agent can start writing code before you have agreed with its root cause. [Issue #124](https://github.com/mattpocock/skills/issues/124) asks for that gate and is still open. If you want it, say so when you invoke the skill.
+**target이 없으면 옛 여섯 단계로 계속할 수 있나요?**
+아니다. 누락된 `diagnose-bug` Skill/frontdoor를 명시하고 dependent flow를 중단한다. 설치나 활성화는 별도 권한이 필요하며 source 검사만으로 실제 호출이나 모델 준수를 PASS로 표시하지 않는다.
 
-**I already ran `/triage` on this bug report. Is this the same work again?**
-Partly, and neither skill admits it. As one reader put it: "Triage's step 3 is essentially a shallow, bounded instance of diagnosing-bugs Phase 1–2, but neither file mentions the other." Triage does a bounded "is this actually a bug, and what is the surface" pass; this skill does the thorough version. Running triage first is not wasted (its verification often gives you most of Phase 1's raw material), but expect to redo it properly here, and expect no cross-reference to tell you that.
-
-**Will the repro output it pastes leak secrets?**
-It might. The skill asks the agent to paste the invocation and its output, and to request artifacts like HAR files, log dumps, and core dumps. None of those are sanitised by instruction. [Issue #674](https://github.com/mattpocock/skills/issues/674) raises exactly this (credentials, tokens, cookies, and personal data riding along into a chat, an issue, or a PR) and proposes a redaction guardrail. It is open and unimplemented. Treat redaction as your job for now, particularly before the output goes anywhere public.
-
-**My security scanner flagged this skill as high risk.**
-Snyk flags it, and the flag is a false positive. It is the only skill in the set that ships an executable shell script (`hitl-loop.template.sh`) alongside instructions to run it and to curl a dev server. Shipped `.sh` plus run-it instructions plus outbound HTTP is enough to trip a static scanner. The script itself is about 30 lines of `read -r -p` prompts that pause for human input. The scanner is rating the capability surface, not a proven exploit.
-
-**What happened to `/diagnose`?**
-Renamed to `/diagnosing-bugs` in v1.0.0. The old name no longer exists. Anything of yours that chains `/diagnose` (a wrapper skill, a saved prompt) needs updating.
+**재현 출력에 secret이 섞이면 어떻게 하나요?**
+공유 전에 `<REDACTED>`로 가리고 credential은 환경 변수에 둔다. 가린 출력으로 진단할 수 없다면 안전한 증거를 요청한다.
 
 ## It's working if
 
-- It shows you a command and its red output before it offers a single theory. If theory arrives first, the skill is not running.
-- The failure it reproduces is the one you reported, not a nearby one it found on the way.
-- It shrinks the repro before it starts guessing, and can tell you why each remaining piece is load-bearing.
-- You are shown a ranked list of 3–5 hypotheses, each with a prediction you could falsify, before any of them is tested.
-- Every debug log it adds carries a tag like `[DEBUG-a4f2]`, and a grep for that tag comes back empty when it declares done.
-- The commit or PR message names which hypothesis was right.
-- When it cannot lock the bug down with a test, it says so plainly instead of writing a shallow one.
+- 요청이 심층인지, 원인만 진단하는지 먼저 명시된다.
+- target이 없을 때 성공한 호출 대신 missing dependency가 보인다.
+- 원래 증상과 환경·revision·권한이 target에 전달된다.
+- 원인만 요청한 결과에서 fix/regression이 NOT_RUN으로 남는다.
+- 재현·진단·수정·회귀 결과와 source/static 검사가 서로 구분된다.
 
 ## Where it fits
 
-`diagnosing-bugs` is a reach-for-it-anytime standalone. You drop into it when something is broken and drop out when the fix and its regression test are in; it holds no state and needs no prior setup. skill 선택과 흐름 routing은 consuming harness의 안내를 따른다.
+기존 이름을 직접 쓰는 사용자를 위한 T1 임시 호환 진입점이다. 진단 구현은 `diagnose-bug`에 있고 skill 선택과 흐름 routing은 consuming harness가 소유한다. T1은 이 entry와 manifest 등록을 유지하며 T2 삭제나 설치·pin 활성화를 대신하지 않는다.
 
-Two neighbours matter. [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture) takes the [handoff](https://www.aihero.dev/ai-coding-dictionary/handoff) when the real finding is that the code has no seam to lock the bug down; the recommendation is made after the fix is in, when there is more information. [triage](https://aihero.dev/skills-triage) sits upstream of it for bugs that arrive as raw reports from other people, and does a shallower version of the same first two phases.
+[triage](https://aihero.dev/skills-triage)는 앞단의 요청 검증·분류를 맡는다. [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture)는 실제 진단에서 검증 seam의 부재가 드러났을 때 고려할 이웃이지 자동 후속 호출이나 추가 구현 승인이 아니다.

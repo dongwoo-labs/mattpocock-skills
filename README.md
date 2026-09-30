@@ -155,7 +155,7 @@ For automated tests, a red-green-refactor loop is critical. This is where the ag
 
 I've built a **[`/tdd`](./skills/engineering/tdd/SKILL.md) skill** you can slot into any project. It encourages red-green-refactor and gives the agent plenty of guidance on what makes good and bad tests.
 
-For debugging, I've also built a **[`/diagnosing-bugs`](./skills/engineering/diagnosing-bugs/SKILL.md)** skill that wraps best debugging practices into a disciplined loop, gated phase by phase.
+**[`/diagnosing-bugs`](./skills/engineering/diagnosing-bugs/SKILL.md)**는 직접 호출하는 T1 임시 호환 진입점이다. consuming harness의 `diagnose-bug` Skill에 명시 심층 요청을 전달하며 기존 권한과 원인만 진단하려는 의도를 보존한다.
 
 ### #4: We Built A Ball Of Mud
 
@@ -193,6 +193,7 @@ skill 선택과 흐름 routing은 consuming harness가 소유한다. 이 plugin�
 
 **User-invoked**
 
+- **[diagnosing-bugs](./skills/engineering/diagnosing-bugs/SKILL.md)**: T1 임시 호환 진입점. `diagnose-bug`의 심층 모드를 명시 선택하며 원인만 요청과 기존 writer 권한을 보존한다.
 - **[grill-with-docs](./skills/engineering/grill-with-docs/SKILL.md)**: Grilling session that also builds your project's domain model, sharpening terminology and updating `CONTEXT.md` and ADRs inline.
 - **[triage](./skills/engineering/triage/SKILL.md)**: 접수된 요청을 검증·분류하고 brief를 준비한다. 실행 배정·merge 권한은 기존 lifecycle 담당자에게 남긴다.
 - **[improve-codebase-architecture](./skills/engineering/improve-codebase-architecture/SKILL.md)**: Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick.
@@ -205,7 +206,6 @@ skill 선택과 흐름 routing은 consuming harness가 소유한다. 이 plugin�
 **Model-invoked**
 
 - **[prototype](./skills/engineering/prototype/SKILL.md)**: Build a throwaway prototype to answer a design question, either a single shareable HTML file for state/logic questions, or several radically different UI variations toggleable from one route.
-- **[diagnosing-bugs](./skills/engineering/diagnosing-bugs/SKILL.md)**: Disciplined diagnosis loop for hard bugs and performance regressions: build a feedback loop that goes red on this bug → minimise → hypothesise → instrument → fix → regression-test.
 - **[research](./skills/engineering/research/SKILL.md)**: Investigate a question against high-trust primary sources and capture the findings as a cited Markdown file in the repo, run as a background agent.
 - **[tdd](./skills/engineering/tdd/SKILL.md)**: Test-driven development with a red-green-refactor loop. Builds features or fixes bugs one vertical slice at a time.
 - **[domain-modeling](./skills/engineering/domain-modeling/SKILL.md)**: Actively build and sharpen a project's domain model: challenge terms against the glossary, stress-test with edge-case scenarios, and update `CONTEXT.md` and ADRs inline.
